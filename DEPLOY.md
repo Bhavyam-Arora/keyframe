@@ -1,12 +1,13 @@
 # Keyframe — deploy notes
 
-Four pages. All open directly in a browser, no build step.
+Five pages. All open directly in a browser, no build step.
 
 ## Files
 
 | Page | File |
 |---|---|
-| Waitlist / home | `Keyframe Waitlist.html` |
+| Waitlist / home | `index.html` |
+| About Us | `About Us.dc.html` |
 | Privacy Policy | `Privacy Policy.dc.html` |
 | Refund Policy | `Refund Policy.dc.html` |
 | Terms & Conditions | `Terms and Conditions.dc.html` |
@@ -14,16 +15,17 @@ Four pages. All open directly in a browser, no build step.
 Supporting folders (all required, keep the structure intact):
 
 - `assets/` — logo, wordmark, hero camera image, favicon, and the three page scripts
-- `_ds/` — Keyframe design system tokens and bundle (used by the three legal pages)
-- `support.js` — runtime for the three `.dc.html` pages
-- `keyframe-logo.png` — header and footer logo on the legal pages
+- `_ds/` — Keyframe design system tokens and bundle (used by the four `.dc.html` pages)
+- `support.js` — runtime for the four `.dc.html` pages
+- `keyframe-logo.png` — header and footer logo on the `.dc.html` pages
 
 ## Routing
 
 Point your routes at the files:
 
 ```
-/          -> Keyframe Waitlist.html
+/          -> index.html
+/about     -> About Us.dc.html
 /privacy   -> Privacy Policy.dc.html
 /refund    -> Refund Policy.dc.html
 /terms     -> Terms and Conditions.dc.html
@@ -31,15 +33,16 @@ Point your routes at the files:
 
 Then update the footer links so they use the clean URLs instead of filenames.
 
-In `Keyframe Waitlist.html`, footer:
+In `index.html`, footer:
 
 ```html
+<a href="/about">About Us</a>
 <a href="/privacy">Privacy Policy</a>
 <a href="/refund">Refund Policy</a>
 <a href="/terms">Terms &amp; Conditions</a>
 ```
 
-Each legal page has the same three links in its footer plus its header nav. Same swap.
+Each `.dc.html` page has the same four links in its footer plus its header nav. Same swap.
 
 ## MailerLite
 
@@ -69,7 +72,7 @@ Current destinations:
 
 ## Loader
 
-The phi loader lives in `Keyframe Waitlist.html` (`#kf-pre`). It holds for a
+The phi loader lives in `index.html` (`#kf-pre`). It holds for a
 minimum of 1.65s so it never flickers on a fast connection, and hard-caps at
 5.2s in case an asset stalls. Both numbers are in the inline script directly
 below the loader markup.

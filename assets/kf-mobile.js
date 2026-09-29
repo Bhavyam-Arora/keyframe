@@ -235,8 +235,29 @@
 
   /* ---------------- boot ---------------- */
 
+  /* ---------------- glass: theme flag, big-card tagging, scroll sheen ---------------- */
+
+  var lastSheen = '';
+  function glass() {
+    var sy = window.scrollY || document.documentElement.scrollTop || 0;
+    // the sheen slides across a card once per screen of scrolling
+    var v = ((((sy / (window.innerHeight || 800)) % 1) + 1) % 1) * 120 - 60;
+    var str = v.toFixed(1);
+    if (str !== lastSheen) { lastSheen = str; root.style.setProperty('--kfx-sheen', str); }
+  }
+  function tagGlass() {
+    var bg = getComputedStyle(document.body).backgroundColor;
+    root.classList.toggle('kfx-light', bg === 'rgb(245, 241, 234)');
+    var vw = window.innerWidth;
+    document.querySelectorAll('[style*="backdrop-filter"][style*="border-radius"]').forEach(function (e) {
+      if (e.hasAttribute('data-rise') || e.classList.contains('kfx-glass')) return;
+      if (e.offsetWidth > vw * 0.6 && e.offsetHeight > 180 && getComputedStyle(e).position === 'static') e.classList.add('kfx-glass');
+    });
+  }
+  setInterval(tagGlass, 500);
+
   function loop() {
-    try { drawBA(); drawFlow(); } catch (e) {}
+    try { drawBA(); drawFlow(); glass(); } catch (e) {}
     requestAnimationFrame(loop);
   }
 

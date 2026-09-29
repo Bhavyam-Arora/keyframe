@@ -116,14 +116,76 @@
 @media (max-width: 859px) {
   /* "three hours" road: keep every beat inside the screen */
   [data-beat] { width: calc(100vw - 108px) !important; }
-  /* asset cards stack on top of each other: make them solid so text never shows through */
-  [data-rise] { background-color: var(--surf, #0C0912) !important; }
-  [data-rise="1"] { background-image: linear-gradient(var(--tint2), var(--tint2)) !important; }
-  [data-rise="2"] { background-image: linear-gradient(var(--tint3), var(--tint3)) !important; }
-  [data-rise="3"] { background-image: linear-gradient(var(--tint4), var(--tint4)) !important; }
-  [data-rise="0"] { background-image: linear-gradient(var(--tint1), var(--tint1)) !important; }
+}
+
+/* ---------- liquid glass on phones and tablets ----------
+   On a laptop the glass reads because purple light and hover glows sit behind it.
+   On a phone the light leaks mostly fall off-screen and there is no hover, so:
+   a drifting colour field behind the page, stronger blur and saturation,
+   specular edges, and a sheen that slides as you scroll. */
+
+@media (max-width: 1099px), (hover: none) {
+  #top::before {
+    content: ''; position: fixed; inset: -20vh -30vw; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(38% 26% at 18% 22%, rgba(124,58,237,0.34), rgba(124,58,237,0) 70%),
+      radial-gradient(34% 24% at 86% 48%, rgba(168,85,247,0.26), rgba(168,85,247,0) 70%),
+      radial-gradient(40% 26% at 30% 82%, rgba(76,29,149,0.30), rgba(76,29,149,0) 70%),
+      radial-gradient(26% 18% at 74% 12%, rgba(236,160,110,0.10), rgba(236,160,110,0) 70%);
+    filter: blur(28px);
+    animation: kfxField 22s ease-in-out infinite alternate;
+  }
+  .kfx-light #top::before { opacity: 0.55; }
+  @keyframes kfxField {
+    0% { transform: translate3d(0,0,0) scale(1); }
+    50% { transform: translate3d(-6vw,4vh,0) scale(1.06); }
+    100% { transform: translate3d(5vw,-3vh,0) scale(1.02); }
+  }
+
+  /* every glass surface: deeper blur, richer colour through it, lit edges */
+  [style*="backdrop-filter"][style*="border-radius"] {
+    -webkit-backdrop-filter: blur(22px) saturate(1.9) brightness(1.04) !important;
+    backdrop-filter: blur(22px) saturate(1.9) brightness(1.04) !important;
+    box-shadow:
+      inset 0 1px 0 var(--glassHi, rgba(255,255,255,0.35)),
+      inset 1px 0 0 rgba(255,255,255,0.10),
+      inset 0 -1px 0 rgba(255,255,255,0.05),
+      inset 0 -26px 40px -32px rgba(168,85,247,0.55),
+      0 18px 44px -26px rgba(0,0,0,0.55) !important;
+  }
+  .kfx-light [style*="backdrop-filter"][style*="border-radius"] {
+    box-shadow:
+      inset 0 1px 0 #fff, inset 1px 0 0 rgba(255,255,255,0.8),
+      inset 0 -26px 40px -32px rgba(124,58,237,0.22),
+      0 18px 44px -26px rgba(60,30,110,0.28) !important;
+  }
+
+  /* the big cards get a real glass body and a sliding sheen */
+  [data-rise], .kfx-glass {
+    background-color: color-mix(in srgb, var(--surf, #0C0912) 74%, transparent) !important;
+    background-image:
+      linear-gradient(135deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.03) 38%, rgba(168,85,247,0.10) 100%) !important;
+    border-color: var(--glassLine, rgba(255,255,255,0.22)) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(2) brightness(1.05) !important;
+    backdrop-filter: blur(30px) saturate(2) brightness(1.05) !important;
+    overflow: hidden;
+  }
+  .kfx-light [data-rise], .kfx-light .kfx-glass {
+    background-color: color-mix(in srgb, #FFFFFF 66%, transparent) !important;
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.35) 42%, rgba(196,181,253,0.22) 100%) !important;
+  }
+  [data-rise]::after, .kfx-glass::after {
+    content: ''; position: absolute; inset: -40% -60%; pointer-events: none; z-index: 0;
+    background: linear-gradient(105deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.13) 49%, rgba(255,255,255,0.03) 53%, rgba(255,255,255,0) 60%);
+    transform: translate3d(calc(var(--kfx-sheen, 0) * 1%), 0, 0);
+    mix-blend-mode: screen;
+  }
+  .kfx-light [data-rise]::after, .kfx-light .kfx-glass::after { mix-blend-mode: normal; opacity: 0.7; }
+  .kfx-glass { position: relative; }
+  [data-rise] > *, .kfx-glass > * { position: relative; z-index: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  #top::before { animation: none; }
   .kfx-ba-hint svg { animation: none; }
 }

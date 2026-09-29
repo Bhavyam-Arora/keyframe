@@ -6,6 +6,23 @@
 <link rel="stylesheet" href="assets/kf-mobile.css">
 <script src="./support.js"></script>
 <script src="assets/kf-mobile.js" defer></script>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1411312853753013');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1411312853753013&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 <x-dc>
@@ -24,7 +41,7 @@
     *,*::before,*::after{box-sizing:border-box}
     html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
     html,body{overflow-x:clip}
-    body{margin:0;background:#000000;color:var(--body,#A49EB0);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    body{margin:0;background:#F5F1EA;color:var(--body,#A49EB0);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
     a{color:var(--strong,#E8E5EE);text-decoration:none}
     a:hover{color:var(--accent,#C4B5FD)}
     @keyframes kfPulse{0%,100%{opacity:1}50%{opacity:0.3}}
@@ -463,7 +480,7 @@ class Component extends DCLogic {
     ['assets/gallery/g09.jpg', 2560, 1440], ['assets/gallery/g14.jpg', 2752, 1536], ['assets/gallery/g04.jpg', 1312, 736],
     ['assets/gallery/g18.jpg', 5504, 3072], ['assets/gallery/g08.jpg', 2560, 1440]
   ];
-  _savedTheme() { try { return localStorage.getItem('kf-theme') === 'light' ? 'light' : 'dark'; } catch (e) { return 'dark'; } }
+  _savedTheme() { try { return localStorage.getItem('kf-theme') === 'dark' ? 'dark' : 'light'; } catch (e) { return 'light'; } }
   _setTheme = t => { this.setState({ theme: t }, () => this._applyBody()); this._applyBody(t); try { localStorage.setItem('kf-theme', t); } catch (e) {} };
   _applyBody(t) { document.body.style.background = (t || this.state.theme) === 'light' ? '#F5F1EA' : '#000000'; }
 

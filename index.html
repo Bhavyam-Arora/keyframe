@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/kf-mobile.css">
 <script src="./support.js"></script>
+<script src="assets/kf-mobile.js" defer></script>
 </head>
 <body>
 <x-dc>
@@ -443,9 +445,9 @@ class Component extends DCLogic {
   // locked art direction. only the two video links stay tweakable.
   L = { heroVideo: 'side box', headlineReveal: true, showDiscount: true, labels: 'small caps', chapterNumerals: true, galleryTiles: 21, promiseFirst: true, sliderStart: 50, purple: 'one leak', warmLeak: true, glow: 100, grain: 14, buttonHover: 'invert', hideBarOnScroll: true, stickyBar: true, motion: 'full' };
   static PAIRS = [
-    { bId: 'v5-described', aId: 'v5-directed' },
-    { bId: 'v6-prompted-2', aId: 'v6-directed-2' },
-    { bId: 'v6-prompted-3', aId: 'v6-directed-3' },
+    { b: 'assets/pairs/p3-before.webp', a: 'assets/pairs/p3-after.webp' },
+    { b: 'assets/pairs/p4-before.webp', a: 'assets/pairs/p4-after.webp' },
+    { b: 'assets/pairs/p5-before.webp', a: 'assets/pairs/p5-after.webp' },
     { b: 'assets/pairs/p1-before.jpg', a: 'assets/pairs/p1-after.jpg' },
     { b: 'assets/pairs/p2-before.jpg', a: 'assets/pairs/p2-after.jpg' }
   ];

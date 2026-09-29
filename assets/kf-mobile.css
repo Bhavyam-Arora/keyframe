@@ -1,0 +1,129 @@
+/* Phone and touch layer for The Sunday Shoot.
+   kf-mobile.js sets two classes on <html>:
+   .kfx-m  narrow screens (under 860px): full-screen before/after scene
+   .kfx-t  touch screens or narrow screens: swipeable gallery instead of the hover orb */
+
+/* ---------- before / after scene ---------- */
+
+.kfx-ba { display: none; }
+.kfx-m .kfx-ba { display: block; }
+.kfx-m .kfx-ba-hide { display: none !important; }
+
+.kfx-ba { position: relative; width: 100%; margin-top: 8px; }
+.kfx-ba-stage {
+  position: sticky; top: 0; height: 100vh; height: 100lvh;
+  overflow: hidden; contain: layout paint;
+}
+.kfx-ba-frame {
+  position: absolute; left: 50%; top: 50%;
+  overflow: hidden; background: #000;
+  will-change: transform, width, height;
+  box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9);
+}
+.kfx-ba-pair { position: absolute; inset: 0; opacity: 0; }
+.kfx-ba-pair img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block; user-select: none; -webkit-user-drag: none;
+}
+.kfx-ba-line {
+  position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px;
+  background: #fff; box-shadow: 0 0 18px rgba(196,181,253,0.9), 0 0 2px rgba(0,0,0,0.6);
+  pointer-events: none;
+}
+.kfx-ba-knob {
+  position: absolute; top: 50%; left: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px;
+  border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.9);
+  background: rgba(10,8,16,0.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center; color: #fff;
+}
+
+/* labels stay upright even when the frame is turned */
+.kfx-ba-ui { position: absolute; inset: 0; pointer-events: none; font-family: 'Inter', system-ui, sans-serif; }
+.kfx-ba-tag {
+  position: absolute; display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 999px;
+  background: rgba(8,6,12,0.55); border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+}
+.kfx-ba-tag i { width: 7px; height: 7px; border-radius: 50%; background: #C4B5FD; box-shadow: 0 0 10px #A855F7; }
+.kfx-ba-tag.kfx-dim { opacity: 0.45; }
+.kfx-ba-dir { left: 16px; top: calc(var(--navH, 62px) + 16px); }
+.kfx-ba-pro { left: 16px; bottom: calc(var(--barH, 78px) + 18px); }
+.kfx-ba-pro i { background: #8E8899; box-shadow: none; }
+.kfx-ba-count {
+  position: absolute; right: 16px; bottom: calc(var(--barH, 78px) + 26px);
+  color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500; letter-spacing: 0.2em;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+}
+.kfx-ba-dots { position: absolute; right: 16px; top: calc(var(--navH, 62px) + 22px); display: flex; flex-direction: column; gap: 6px; }
+.kfx-ba-dots b { width: 4px; height: 18px; border-radius: 4px; background: rgba(255,255,255,0.25); transition: background 0.3s, height 0.3s; }
+.kfx-ba-dots b.on { background: #C4B5FD; height: 30px; }
+.kfx-ba-hint {
+  position: absolute; left: 50%; bottom: calc(var(--barH, 78px) + 22px); transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; white-space: nowrap;
+  color: var(--muted, #8E8899); font-size: 13px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+}
+.kfx-ba-hint svg { animation: kfxTilt 2.6s ease-in-out infinite; }
+@keyframes kfxTilt { 0%, 30% { transform: rotate(0); } 55%, 80% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
+
+/* landscape phone: nothing turns, the wipe runs left to right */
+.kfx-land .kfx-ba-dir { top: auto; bottom: 18px; left: 16px; }
+.kfx-land .kfx-ba-pro { left: auto; right: 16px; bottom: 18px; }
+.kfx-land .kfx-ba-count { bottom: auto; top: 18px; }
+.kfx-land .kfx-ba-dots { display: none; }
+
+/* ---------- touch gallery ---------- */
+
+.kfx-flow { display: none; }
+.kfx-t .kfx-flow { display: block; }
+.kfx-t .kfx-orb-hide { display: none !important; }
+
+.kfx-flow { position: relative; width: 100%; padding: 8px 0 4px; }
+.kfx-flow-track {
+  display: flex; align-items: center; gap: 14px;
+  overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  padding: 36px 0; perspective: 1100px;
+}
+.kfx-flow-track::-webkit-scrollbar { display: none; }
+.kfx-flow-pad { flex: none; width: 1px; }
+.kfx-card {
+  flex: none; position: relative; padding: 0; margin: 0; border: 0; cursor: pointer;
+  scroll-snap-align: center; scroll-snap-stop: always;
+  border-radius: 18px; overflow: hidden; background: var(--surf, #0C0912);
+  box-shadow: 0 28px 60px -30px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.08);
+  will-change: transform, opacity; transform-origin: 50% 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+.kfx-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.kfx-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 38%);
+  opacity: var(--shine, 0); transition: opacity 0.2s;
+}
+.kfx-flow-meta {
+  display: flex; align-items: center; gap: 14px; max-width: 1180px; margin: 0 auto; padding: 0 24px;
+  font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--muted, #8E8899);
+}
+.kfx-flow-bar { flex: 1; height: 2px; border-radius: 2px; background: var(--line2, #221D2C); overflow: hidden; }
+.kfx-flow-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #7C3AED, #C4B5FD); }
+
+/* ---------- general phone fixes ---------- */
+
+@media (max-width: 859px) {
+  /* "three hours" road: keep every beat inside the screen */
+  [data-beat] { width: calc(100vw - 108px) !important; }
+  /* asset cards stack on top of each other: make them solid so text never shows through */
+  [data-rise] { background-color: var(--surf, #0C0912) !important; }
+  [data-rise="1"] { background-image: linear-gradient(var(--tint2), var(--tint2)) !important; }
+  [data-rise="2"] { background-image: linear-gradient(var(--tint3), var(--tint3)) !important; }
+  [data-rise="3"] { background-image: linear-gradient(var(--tint4), var(--tint4)) !important; }
+  [data-rise="0"] { background-image: linear-gradient(var(--tint1), var(--tint1)) !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kfx-ba-hint svg { animation: none; }
+}

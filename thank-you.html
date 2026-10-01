@@ -23,6 +23,16 @@ s.parentNode.insertBefore(t,s)}(window,document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '1411312853753013');
 fbq('track', 'PageView');
+// Purchase: this page only opens after a completed Razorpay payment.
+// Counted once per browser (or once per payment id, if Razorpay passes one)
+// so a refresh or a revisit never reports a second sale.
+(function () {
+  var id = '';
+  try { id = new URLSearchParams(location.search).get('razorpay_payment_id') || ''; } catch (e) {}
+  var key = 'kf-purchase-' + (id || 'sunday-shoot');
+  try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
+  fbq('track', 'Purchase', { value: 49, currency: 'INR', content_name: 'The Sunday Shoot' }, id ? { eventID: id } : {});
+})();
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1411312853753013&ev=PageView&noscript=1"/></noscript>

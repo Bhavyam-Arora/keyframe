@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>keyframe24.ai</title>
 <link rel="stylesheet" href="assets/kf-mobile.css">
 <script src="./support.js"></script>
 <script src="assets/kf-mobile.js" defer></script>
@@ -28,7 +29,7 @@ src="https://www.facebook.com/tr?id=1411312853753013&ev=PageView&noscript=1"
 <x-dc>
 <helmet>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The Sunday Shoot · Keyframe</title>
+  <title>keyframe24.ai</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=Caveat:wght@500&display=swap">
   <link rel="stylesheet" href="_ds/keyframe-design-system-f9b40530-5292-49e7-b718-a100597d8be9/tokens/fonts.css">
@@ -412,8 +413,8 @@ src="https://www.facebook.com/tr?id=1411312853753013&ev=PageView&noscript=1"
         <div style="display:flex;flex-direction:column;gap:15px">
           <div style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:21px;line-height:1.1;letter-spacing:-0.012em;color:var(--ink,#FFFFFF)">Elsewhere</div>
           <div style="display:flex;flex-direction:column;gap:11px;font-family:'Inter',sans-serif;font-size:16px">
-            <a href="https://instagram.com">Instagram</a>
-            <a href="https://whatsapp.com">WhatsApp channel</a>
+            <a href="https://www.instagram.com/keyframe24.ai/" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://whatsapp.com/channel/0029VbDd7jX2P59nGQkRLh29" target="_blank" rel="noopener">WhatsApp channel</a>
           </div>
         </div>
       </div>
@@ -460,7 +461,7 @@ class Component extends DCLogic {
   state = { mob: false, faq: -1, pcts: [], cd: '', label: '', light: -1, barHid: false, frame: 0, heroOn: false, reelOn: false, theme: this._savedTheme() };
   sliderRef = React.createRef();
   // locked art direction. only the two video links stay tweakable.
-  L = { heroVideo: 'side box', headlineReveal: true, showDiscount: true, labels: 'small caps', chapterNumerals: true, galleryTiles: 21, promiseFirst: true, sliderStart: 50, purple: 'one leak', warmLeak: true, glow: 100, grain: 14, buttonHover: 'invert', hideBarOnScroll: true, stickyBar: true, motion: 'full' };
+  L = { heroVideo: 'side box', headlineReveal: true, showDiscount: true, labels: 'small caps', chapterNumerals: true, galleryTiles: 29, promiseFirst: true, sliderStart: 50, purple: 'one leak', warmLeak: true, glow: 100, grain: 14, buttonHover: 'invert', hideBarOnScroll: true, stickyBar: true, motion: 'full' };
   static PAIRS = [
     { b: 'assets/pairs/p3-before.webp', a: 'assets/pairs/p3-after.webp' },
     { b: 'assets/pairs/p4-before.webp', a: 'assets/pairs/p4-after.webp' },
@@ -495,6 +496,12 @@ class Component extends DCLogic {
     const first = Date.UTC(2026, 9, 11, 11, 0) - OFF;
     const utc = now < first + 3 * 3600000 ? first : (now >= start + 3 * 3600000 ? start + 7 * 86400000 : start);
     return { utc: utc, ist: new Date(utc + OFF) };
+  }
+  _barDate() {
+    // short session date for the sticky bar, e.g. "sun, 11 oct"
+    const d = this._next().ist;
+    return ['sun','mon','tue','wed','thu','fri','sat'][d.getUTCDay()] + ', ' + d.getUTCDate() + ' '
+      + ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'][d.getUTCMonth()];
   }
   _tick = () => {
     const n = this._next();
@@ -1164,7 +1171,7 @@ class Component extends DCLogic {
         i: S.faq === i ? 'transform:rotate(-135deg) translate(-2px,-2px)' : 'transform:rotate(45deg) translateY(-3px)'
       })),
       barStyle: ((P.stickyBar ?? true) ? 'display:flex;' : 'display:none;') + 'height:' + (invite ? (S.mob ? '96px' : '106px') : (S.mob ? '78px' : '92px')) + ';--barBtnH:' + (invite && S.mob ? '48px' : '52px'),
-      barLive: S.mob ? '11am · live' : '11am ist · live workshop',
+      barLive: S.mob ? this._barDate() + ' · 11am' : this._barDate() + ' · 11am ist · live workshop',
       barCta: S.mob ? 'Reserve ₹49' : 'Reserve · ₹49',
       showInvite: invite,
       inviteUrl: (P.inviteFormUrl || '').trim() || 'https://forms.gle/ZB5vk7DNB2CdivBf7'

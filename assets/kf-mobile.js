@@ -1,8 +1,6 @@
 /* Phone and touch layer for The Sunday Shoot.
-   1. Under 860px wide, the before/after reel becomes a full-screen scroll scene:
-      the frame turns 90 degrees to fill a portrait phone, then each pair wipes
-      from prompted to directed as you scroll. Landscape phones get the same
-      scene without the turn.
+   1. Under 860px wide, the before/after drag slider becomes a row of
+      swipeable pairs, each showing prompted above directed.
    2. On touch screens (and narrow screens) the hover orb gallery becomes a
       swipeable 3D film strip. Tapping the centre frame opens the lightbox. */
 (function () {
@@ -35,7 +33,10 @@
   var lerp = function (a, b, t) { return a + (b - a) * t; };
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; }
 
-  /* ---------------- before / after scene ---------------- */
+  /* ---------------- before / after: swipeable stacked pairs ----------------
+     Under 860px wide the drag slider is swapped for plain frames: each pair
+     shows prompted on top and directed underneath, and the five pairs sit in
+     a row you swipe through sideways. */
 
   var ba = null;
 
@@ -48,104 +49,42 @@
     reel.classList.add('kfx-ba-hide');
 
     var wrap = el('div', 'kfx-ba');
-    wrap.setAttribute('aria-label', 'Before and after frames');
-    var stage = el('div', 'kfx-ba-stage');
-    var frame = el('div', 'kfx-ba-frame');
-    var pairs = PAIRS.map(function (p, i) {
-      var box = el('div', 'kfx-ba-pair');
-      var b = new Image(); b.alt = 'Prompted frame ' + (i + 1); b.decoding = 'async'; b.src = p[0];
-      var a = new Image(); a.alt = 'Directed frame ' + (i + 1); a.decoding = 'async'; a.src = p[1];
-      // a missing file shows the other half instead of a broken-image box
-      b.onerror = function () { b.style.visibility = 'hidden'; }; a.onerror = function () { a.style.visibility = 'hidden'; };
-      box.appendChild(b); box.appendChild(a);
-      frame.appendChild(box);
-      return { box: box, before: b, after: a };
+    wrap.setAttribute('aria-label', 'Prompted and directed frames');
+    var track = el('div', 'kfx-ba-track');
+    var slides = PAIRS.map(function (p, i) {
+      var slide = el('figure', 'kfx-ba-slide');
+      [[p[0], 'Prompted', 'kfx-ba-pro'], [p[1], 'Directed', 'kfx-ba-dir']].forEach(function (x) {
+        var box = el('div', 'kfx-ba-shot ' + x[2]);
+        var img = new Image(); img.alt = x[1] + ' frame ' + (i + 1); img.decoding = 'async';
+        img.loading = i < 2 ? 'eager' : 'lazy'; img.src = x[0];
+        img.onerror = function () { img.style.visibility = 'hidden'; };
+        box.appendChild(img);
+        box.appendChild(el('span', 'kfx-ba-tag', '<i></i>' + x[1]));
+        slide.appendChild(box);
+      });
+      track.appendChild(slide);
+      return slide;
     });
-    var line = el('div', 'kfx-ba-line');
-    var knob = el('div', 'kfx-ba-knob', '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg>');
-    line.appendChild(knob);
-    frame.appendChild(line);
-
-    var ui = el('div', 'kfx-ba-ui');
-    var dir = el('div', 'kfx-ba-tag kfx-ba-dir', '<i></i>Directed');
-    var pro = el('div', 'kfx-ba-tag kfx-ba-pro', '<i></i>Prompted');
-    var count = el('div', 'kfx-ba-count', '01 / 0' + PAIRS.length);
-    var dots = el('div', 'kfx-ba-dots', PAIRS.map(function () { return '<b></b>'; }).join(''));
-    var hint = el('div', 'kfx-ba-hint', '<svg width="16" height="22" viewBox="0 0 16 22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1" y="1" width="14" height="20" rx="3"/><path d="M6 17.5h4"/></svg>Scroll to direct');
-    [dir, pro, count, dots, hint].forEach(function (n) { ui.appendChild(n); });
-
-    stage.appendChild(frame); stage.appendChild(ui); wrap.appendChild(stage);
+    var meta = el('div', 'kfx-ba-meta', '<span class="kfx-ba-n">01 / ' + String(PAIRS.length).padStart(2, '0') + '</span><span class="kfx-ba-dots">' + PAIRS.map(function () { return '<b></b>'; }).join('') + '</span><span>swipe</span>');
+    wrap.appendChild(track); wrap.appendChild(meta);
     section.appendChild(wrap);
 
-    ba = { wrap: wrap, stage: stage, frame: frame, pairs: pairs, line: line, dir: dir, pro: pro, count: count, dots: dots.children, hint: hint, sig: '' };
-    sizeBA();
+    ba = { wrap: wrap, track: track, slides: slides, n: meta.querySelector('.kfx-ba-n'), dots: meta.querySelectorAll('.kfx-ba-dots b'), dirty: true, sig: '' };
+    track.addEventListener('scroll', function () { ba && (ba.dirty = true); }, { passive: true });
     return true;
   }
 
-  // scroll budget, in screen heights
-  var INTRO = 0.7, PER = 1.15, OUTRO = 0.6;
-
-  function sizeBA() {
-    if (!ba) return;
-    ba.wrap.style.height = ((INTRO + PER * PAIRS.length + OUTRO) * 100 + 100) + 'vh';
-  }
-
   function drawBA() {
-    if (!ba || !root.classList.contains('kfx-m')) return;
-    var vw = ba.stage.clientWidth || window.innerWidth, vh = ba.stage.clientHeight || window.innerHeight;
-    var r = ba.wrap.getBoundingClientRect();
-    var span = r.height - vh;
-    if (r.bottom < -50 || r.top > vh + 50 || span <= 0) return;
-    var s = clamp(-r.top / span, 0, 1);
-    var T = INTRO + PER * PAIRS.length + OUTRO, t = s * T;
-    var portrait = vh > vw;
-    root.classList.toggle('kfx-land', !portrait);
-    var turn = portrait && !calm.matches;
-
-    // how far the frame has opened up to full screen
-    var open = t < INTRO ? ease(t / INTRO) : t > T - OUTRO ? ease((T - t) / OUTRO) : 1;
-    var cw = Math.min(vw - 32, 760), ch = cw * 9 / 16;
-    var fw = turn ? vh : vw, fh = turn ? vw : vh;
-    var w = lerp(cw, fw, open), h = lerp(ch, fh, open), ang = turn ? 90 * open : 0;
-    var rad = lerp(18, 0, open);
-
-    // which pair, and how far its wipe has run
-    var k = clamp(Math.floor((t - INTRO) / PER), 0, PAIRS.length - 1);
-    var u = clamp((t - INTRO - k * PER) / PER, 0, 1);
-    var wipe = t < INTRO ? 0 : t > T - OUTRO ? 1 : ease(clamp((u - 0.1) / 0.7, 0, 1));
-    var fade = k < PAIRS.length - 1 ? ease(clamp((u - 0.88) / 0.12, 0, 1)) : 0;
-
-    var sig = [w | 0, h | 0, ang.toFixed(2), k, wipe.toFixed(3), fade.toFixed(3)].join('|');
-    if (sig === ba.sig) return;
-    ba.sig = sig;
-
-    var f = ba.frame.style;
-    f.width = w.toFixed(1) + 'px'; f.height = h.toFixed(1) + 'px';
-    f.borderRadius = rad.toFixed(1) + 'px';
-    f.transform = 'translate(-50%,-50%) rotate(' + ang.toFixed(2) + 'deg)';
-
-    for (var i = 0; i < ba.pairs.length; i++) {
-      var p = ba.pairs[i];
-      var op = i === k ? 1 : (i === k + 1 ? fade : 0);
-      p.box.style.opacity = op;
-      p.box.style.zIndex = i === k + 1 ? 2 : 1;
-      if (i === k) p.after.style.clipPath = 'inset(0 ' + ((1 - wipe) * 100).toFixed(2) + '% 0 0)';
-      else if (i === k + 1) p.after.style.clipPath = 'inset(0 100% 0 0)';
-    }
-    ba.line.style.left = (wipe * 100).toFixed(2) + '%';
-    var showLine = t >= INTRO * 0.9 && t <= T - OUTRO * 0.4 && wipe > 0.004 && wipe < 0.996;
-    ba.line.style.opacity = showLine ? 1 : 0;
-
-    var full = open > 0.98;
-    ba.dir.classList.toggle('kfx-dim', wipe < 0.5);
-    ba.pro.classList.toggle('kfx-dim', wipe >= 0.5);
-    ba.dir.style.opacity = full ? '' : 0; ba.pro.style.opacity = full ? '' : 0;
-    ba.count.style.opacity = full ? 1 : 0;
-    ba.dots.length && Array.prototype.forEach.call(ba.dots, function (d, i) { d.classList.toggle('on', i === k); });
-    ba.dots[0] && (ba.dots[0].parentElement.style.opacity = full ? 1 : 0);
-    ba.hint.style.opacity = open < 0.2 ? 1 - open * 5 : 0;
-    var n = String(k + 1).padStart(2, '0') + ' / ' + String(PAIRS.length).padStart(2, '0');
-    if (ba.count.textContent !== n) ba.count.textContent = n;
+    if (!ba || !ba.dirty || !root.classList.contains('kfx-m')) return;
+    ba.dirty = false;
+    var t = ba.track, mid = t.scrollLeft + t.clientWidth / 2, best = 0, bestD = 1e9;
+    ba.slides.forEach(function (s, i) {
+      var d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    var n = String(best + 1).padStart(2, '0') + ' / ' + String(PAIRS.length).padStart(2, '0');
+    if (ba.n.textContent !== n) ba.n.textContent = n;
+    Array.prototype.forEach.call(ba.dots, function (d, i) { d.classList.toggle('on', i === best); });
   }
 
   /* ---------------- touch gallery ---------------- */
@@ -283,5 +222,5 @@
   })();
   requestAnimationFrame(loop);
 
-  window.addEventListener('resize', function () { if (ba) ba.sig = ''; layout(); }, { passive: true });
+  window.addEventListener('resize', function () { if (ba) ba.dirty = true; layout(); }, { passive: true });
 })();
